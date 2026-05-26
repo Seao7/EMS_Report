@@ -1,0 +1,1769 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>EMS × Hyperspectral — Study Brief</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    /* Palette · Black / White / Opal (default) */
+    --paper:        #F4F2EC;     /* warm white */
+    --paper-soft:   #F8F6F1;
+    --paper-card:   #FFFFFF;
+    --paper-warm:   #ECE8DF;
+    --ink:          #0B0C0E;     /* near-black */
+    --ink-2:        #2A2C30;
+    --muted:        #76787C;
+    --muted-2:      #B1B2B4;
+    --rule:         #D9D7CF;
+    --rule-soft:    #E6E4DC;
+    --accent:       #7DB5A8;     /* opal (milky mint-teal) */
+    --accent-deep:  #4F8C81;     /* deeper opal for emphasis */
+    --accent-2:     #4C6E73;     /* slate-opal */
+    --accent-3:     #C9A06E;     /* warm contrast for charts */
+    --hbo2:         #B5594A;     /* data colours — kept distinguishable */
+    --hhb:          #3F6AAC;
+    --iso:          #6E6357;
+
+    --grain-opacity: 0.55;
+
+    --display: "Fraunces", Georgia, serif;
+    --body:    "Inter", system-ui, -apple-system, sans-serif;
+    --mono:    "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+  }
+
+  /* Palette · Paper (original warm) */
+  :root[data-palette="paper"] {
+    --paper:        #ECE6D9;
+    --paper-soft:   #F1ECE2;
+    --paper-card:   #FBF7EE;
+    --paper-warm:   #E4DCC8;
+    --ink:          #16181C;
+    --ink-2:        #3A372F;
+    --muted:        #847E72;
+    --muted-2:      #B6AE9C;
+    --rule:         #D2C9B4;
+    --rule-soft:    #E0D9C6;
+    --accent:       #B43B2A;
+    --accent-deep:  #8A2D1F;
+    --accent-2:     #2B5566;
+    --accent-3:     #BD8A2F;
+    --hbo2:         #C44A3A;
+    --hhb:          #2F5BA8;
+    --iso:          #6E6357;
+  }
+
+  /* Palette · Onyx (dark, opal accent) */
+  :root[data-palette="onyx"] {
+    --paper:        #0D0F12;
+    --paper-soft:   #14171B;
+    --paper-card:   #1A1D22;
+    --paper-warm:   #21252B;
+    --ink:          #F0EDE5;
+    --ink-2:        #C5C2BA;
+    --muted:        #8A8E95;
+    --muted-2:      #5B5F66;
+    --rule:         #2E3239;
+    --rule-soft:    #232730;
+    --accent:       #8FD0C2;
+    --accent-deep:  #B6E0D5;
+    --accent-2:     #6FA09F;
+    --accent-3:     #D9B07E;
+    --hbo2:         #E07F6E;
+    --hhb:          #7AA0DA;
+    --iso:          #B8B0A4;
+  }
+
+  /* Grain blend swaps for dark palette */
+  :root[data-palette="onyx"] body::before {
+    background-image:
+      radial-gradient(rgba(255,250,235,0.05) 1px, transparent 1.4px),
+      radial-gradient(rgba(255,250,235,0.04) 1px, transparent 1.6px);
+    mix-blend-mode: screen;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* Grain overlay (paper) */
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 100;
+    background-image:
+      radial-gradient(rgba(20,18,12,0.05) 1px, transparent 1.4px),
+      radial-gradient(rgba(20,18,12,0.04) 1px, transparent 1.6px);
+    background-size: 7px 7px, 11px 11px;
+    background-position: 0 0, 3px 3px;
+    opacity: var(--grain-opacity, 0.55);
+    mix-blend-mode: multiply;
+  }
+
+  a { color: inherit; }
+  img { display: block; max-width: 100%; }
+
+  /* ─── Page chrome ───────────────────────────────────────────── */
+  .top-bar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 36px;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--paper) 95%, transparent) 0%, color-mix(in srgb, var(--paper) 78%, transparent) 70%, transparent 100%);
+    backdrop-filter: blur(6px);
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .top-bar .brand { color: var(--ink); font-weight: 600; letter-spacing: 0.18em; }
+  .top-bar .brand .dot { display:inline-block; width:7px; height:7px; border-radius:50%; background: var(--accent); margin-right: 9px; vertical-align: 2px; }
+  .top-bar .meta { display: flex; gap: 22px; align-items: center; }
+  .top-bar .meta .sep { width: 22px; height: 1px; background: var(--rule); }
+
+  /* ─── Side nav ──────────────────────────────────────────────── */
+  .side-nav {
+    position: fixed;
+    top: 50%; transform: translateY(-50%);
+    right: 28px; z-index: 40;
+    display: flex; flex-direction: column; gap: 14px;
+    font-family: var(--mono);
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+  }
+  .side-nav a {
+    text-decoration: none;
+    color: var(--muted-2);
+    display: flex; align-items: center; gap: 10px;
+    transition: color .25s ease;
+  }
+  .side-nav a::before {
+    content: ""; width: 18px; height: 1px;
+    background: currentColor; transition: width .25s ease;
+  }
+  .side-nav a:hover, .side-nav a.is-active { color: var(--ink); }
+  .side-nav a.is-active::before { width: 34px; background: var(--accent); }
+  .side-nav a .label { opacity: 0; transition: opacity .25s ease; }
+  .side-nav a:hover .label, .side-nav a.is-active .label { opacity: 1; }
+  @media (max-width: 1100px) { .side-nav { display: none; } }
+
+  /* ─── Section base ──────────────────────────────────────────── */
+  section { position: relative; padding: 120px 7vw; }
+  @media (max-width: 800px) { section { padding: 80px 6vw; } }
+
+  .container { max-width: 1280px; margin: 0 auto; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 18px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .eyebrow .num { color: var(--muted); }
+  .eyebrow .line { flex: 0 0 40px; height: 1px; background: var(--accent); opacity: 0.4; }
+
+  h1, h2, h3 { font-family: var(--display); font-weight: 400; color: var(--ink); letter-spacing: -0.01em; }
+  h1 { font-size: clamp(56px, 7.5vw, 124px); line-height: 0.98; letter-spacing: -0.025em; }
+  h2 { font-size: clamp(36px, 4.4vw, 64px); line-height: 1.05; margin: 0 0 18px; }
+  h3 { font-size: 22px; line-height: 1.25; margin: 0 0 8px; }
+
+  p { font-size: 17px; line-height: 1.65; color: var(--ink-2); margin: 0 0 16px; max-width: 64ch; }
+  p.lead { font-size: 21px; line-height: 1.55; color: var(--ink); max-width: 50ch; }
+  p.small { font-size: 14px; color: var(--muted); }
+  em { font-style: italic; color: var(--ink); }
+  strong { font-weight: 600; color: var(--ink); }
+
+  .mono { font-family: var(--mono); font-size: 12px; letter-spacing: 0.05em; }
+  .caption { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+
+  hr.rule { border: none; border-top: 1px solid var(--rule); margin: 56px 0; }
+
+  /* ─── Hero ──────────────────────────────────────────────────── */
+  .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding-top: 140px; }
+  .hero .container { display: grid; grid-template-columns: 1fr; gap: 40px; }
+  .hero h1 .ital { font-style: italic; color: var(--accent); }
+  .hero .deck { font-family: var(--body); font-size: 19px; line-height: 1.55; color: var(--ink-2); max-width: 52ch; margin-top: 36px; }
+  .hero-meta {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px;
+    margin-top: 64px; padding-top: 28px;
+    border-top: 1px solid var(--rule);
+  }
+  .hero-meta .cell .k { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .hero-meta .cell .v { font-family: var(--display); font-size: 26px; line-height: 1.15; color: var(--ink); }
+  .hero-meta .cell .v small { font-family: var(--mono); font-size: 11px; color: var(--muted); display: block; margin-top: 4px; letter-spacing: 0.08em; }
+  @media (max-width: 700px) { .hero-meta { grid-template-columns: 1fr 1fr; } }
+
+  .scroll-cue {
+    position: absolute; bottom: 36px; left: 7vw;
+    display: flex; align-items: center; gap: 12px;
+    color: var(--muted); font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+  }
+  .scroll-cue .stick {
+    width: 1px; height: 36px; background: var(--rule); position: relative; overflow: hidden;
+  }
+  .scroll-cue .stick::after { content:""; position: absolute; top:-12px; left:0; width:1px; height:14px; background: var(--accent); animation: drip 2.2s ease-in-out infinite; }
+  @keyframes drip { 0% { top: -12px; } 70% { top: 36px; } 100% { top: 36px; opacity: 0; } }
+
+  /* ─── Two-column block ─────────────────────────────────────── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
+  .grid-2.tight { gap: 40px; }
+  .grid-2 .col { min-width: 0; }
+  @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; gap: 40px; } }
+
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+  @media (max-width: 800px) { .grid-3 { grid-template-columns: 1fr; } }
+
+  /* ─── Camera diagram + slider ──────────────────────────────── */
+  .camera-stage {
+    background: var(--paper-card);
+    border: 1px solid var(--rule);
+    padding: 36px 40px 30px;
+    border-radius: 2px;
+    position: relative;
+  }
+  .camera-stage::before {
+    content: "FIG. A · WAVELENGTH STACK"; position: absolute; top: -8px; left: 28px;
+    background: var(--paper); padding: 0 10px;
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.2em; color: var(--muted);
+  }
+  .spectrum-bar {
+    position: relative;
+    height: 56px; border-radius: 2px;
+    background: linear-gradient(
+      to right,
+      #2a0b3a 0%,   /* UV / 350 */
+      #4a0d8a 6%,   /* 400 violet */
+      #2a3aff 14%,
+      #1ea1ff 22%,
+      #28d2c2 32%,  /* 500 cyan */
+      #2ddf3a 42%,
+      #d4d524 52%,  /* 580 yellow */
+      #e69b1a 58%,
+      #d63b15 64%,  /* 700 red */
+      #7a1a08 72%,
+      #3a1106 82%,  /* 800+ NIR (deep red→black) */
+      #1a0805 92%,
+      #050505 100%
+    );
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  .spectrum-bar .ticks { position: absolute; inset: 0; }
+  .spectrum-bar .ticks span {
+    position: absolute; top: 0; width: 1px; height: 9px;
+    background: rgba(255,255,255,0.55);
+  }
+  .spectrum-bar .ticks span.major { height: 14px; background: rgba(255,255,255,0.85); }
+  .spectrum-bar .ticks span::after {
+    content: attr(data-label); position: absolute; top: 18px; left: 50%; transform: translateX(-50%);
+    color: rgba(255,255,255,0.85); font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em;
+    text-shadow: 0 0 4px rgba(0,0,0,0.6);
+  }
+  .spectrum-cursor {
+    position: absolute; top: -10px; bottom: -10px; width: 2px;
+    background: var(--paper); box-shadow: 0 0 0 1px var(--ink);
+    pointer-events: none; transition: left .03s linear;
+  }
+  .spectrum-cursor::before, .spectrum-cursor::after {
+    content: ""; position: absolute; left: 50%; transform: translateX(-50%);
+    border: 6px solid transparent;
+  }
+  .spectrum-cursor::before { top: -10px; border-bottom-color: var(--ink); }
+  .spectrum-cursor::after { bottom: -10px; border-top-color: var(--ink); }
+
+  .spectrum-controls {
+    display: flex; align-items: flex-end; justify-content: space-between; gap: 24px;
+    margin-top: 36px;
+  }
+  .spectrum-readout { display: flex; flex-direction: column; gap: 4px; }
+  .spectrum-readout .v {
+    font-family: var(--display); font-size: 64px; line-height: 1; color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  .spectrum-readout .v small { font-family: var(--mono); font-size: 16px; color: var(--muted); margin-left: 6px; letter-spacing: 0.05em; }
+  .spectrum-readout .k { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+  .spectrum-band {
+    text-align: right;
+  }
+  .spectrum-band .badge {
+    display: inline-block; padding: 6px 12px; border-radius: 2px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    background: var(--ink); color: var(--paper);
+  }
+  .spectrum-band .badge.visible { background: #C25318; }
+  .spectrum-band .badge.uv { background: #5A2A8A; }
+  .spectrum-band .badge.nir { background: #3A1106; }
+  .spectrum-band .note { display: block; margin-top: 8px; max-width: 280px; color: var(--ink-2); font-size: 14px; }
+
+  .spectrum-input {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; margin: 14px 0 0;
+    background: transparent;
+    cursor: ew-resize;
+  }
+  .spectrum-input::-webkit-slider-runnable-track { background: var(--rule); height: 2px; }
+  .spectrum-input::-moz-range-track { background: var(--rule); height: 2px; }
+  .spectrum-input::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--ink); border: 3px solid var(--paper-card);
+    margin-top: -9px;
+    box-shadow: 0 0 0 1px var(--ink);
+  }
+  .spectrum-input::-moz-range-thumb {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--ink); border: 3px solid var(--paper-card);
+    box-shadow: 0 0 0 1px var(--ink);
+  }
+
+  .band-stack { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 22px; }
+  .band-stack .band {
+    flex: 1 1 calc(100%/47 - 2px); height: 22px;
+    background: var(--current); opacity: 0.85;
+    transition: transform .15s ease, opacity .15s ease;
+  }
+  .band-stack .band.active { transform: scaleY(1.4); opacity: 1; }
+
+  /* ─── Stat cards ───────────────────────────────────────────── */
+  .stat-card {
+    background: var(--paper-card);
+    border: 1px solid var(--rule);
+    padding: 28px 28px 24px;
+    border-radius: 2px;
+    position: relative;
+  }
+  .stat-card .num {
+    font-family: var(--display);
+    font-size: 64px; line-height: 1;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+  }
+  .stat-card .num .unit { font-family: var(--mono); font-size: 18px; color: var(--muted); margin-left: 4px; letter-spacing: 0.04em; }
+  .stat-card .lbl { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-top: 10px; }
+  .stat-card p { margin: 12px 0 0; font-size: 14px; color: var(--ink-2); line-height: 1.5; }
+
+  /* ─── Timeline ─────────────────────────────────────────────── */
+  .timeline {
+    position: relative;
+    margin: 40px 0 0;
+    padding: 28px 0 8px;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .timeline-track {
+    position: relative;
+    height: 2px; background: var(--ink); opacity: 0.85;
+    margin: 30px 30px;
+  }
+  .tl-tick { position: absolute; top: -6px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .tl-tick .dot { width: 14px; height: 14px; border-radius: 50%; background: var(--paper); border: 2px solid var(--ink); }
+  .tl-tick.is-stim .dot { background: var(--accent); border-color: var(--accent); }
+  .tl-tick.is-baseline .dot { background: var(--ink); }
+  .tl-tick .lab { position: absolute; top: 22px; white-space: nowrap; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink); }
+  .tl-tick .sub { position: absolute; top: 38px; white-space: nowrap; font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 0.06em; }
+  .tl-phase {
+    position: absolute; top: -14px; height: 30px;
+    border-left: 1px dashed var(--rule);
+    border-right: 1px dashed var(--rule);
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .tl-phase.stim { background: rgba(180,59,42,0.06); }
+
+  /* ─── RGB time gallery ─────────────────────────────────────── */
+  .subj-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--rule); margin-bottom: 30px; }
+  .subj-tabs button {
+    background: transparent; border: 0; padding: 14px 28px 14px 0;
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--muted); cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color .2s, border-color .2s;
+    margin-right: 28px;
+  }
+  .subj-tabs button.is-active { color: var(--ink); border-bottom-color: var(--accent); }
+  .subj-tabs .count { color: var(--muted-2); margin-left: 8px; }
+
+  .gallery-main {
+    position: relative;
+    background: #1a1814;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: 2px;
+  }
+  .gallery-main img { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .35s ease; position: absolute; inset: 0; }
+  .gallery-main img.is-active { opacity: 1; }
+  .gallery-main .meta {
+    position: absolute; top: 14px; left: 16px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: rgba(255,255,255,0.85);
+    background: rgba(0,0,0,0.4); padding: 6px 10px; border-radius: 2px;
+    backdrop-filter: blur(6px);
+  }
+  .gallery-main .meta .stage { color: #FFE4A2; }
+
+  .gallery-strip {
+    display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 8px;
+    margin-top: 8px;
+  }
+  .gallery-strip .thumb {
+    position: relative;
+    background: #1a1814;
+    aspect-ratio: 4/3;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: border-color .15s ease, transform .15s ease;
+    overflow: hidden;
+  }
+  .gallery-strip .thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .gallery-strip .thumb.is-active { border-color: var(--accent); transform: translateY(-2px); }
+  .gallery-strip .thumb .lbl {
+    position: absolute; bottom: 4px; left: 5px;
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: white; text-shadow: 0 0 4px rgba(0,0,0,0.8);
+  }
+
+  /* ─── Mask reveal ──────────────────────────────────────────── */
+  .mask-stage {
+    position: relative;
+    aspect-ratio: 16/9;
+    background: #1a1814;
+    overflow: hidden;
+    border-radius: 2px;
+    user-select: none;
+    cursor: ew-resize;
+  }
+  .mask-stage .layer { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+  /* base — always visible at full brightness */
+  .mask-stage .l-base { z-index: 1; }
+  /* dimmed copy — only shown on right side of handle */
+  .mask-stage .l-dim {
+    z-index: 2;
+    filter: brightness(0.32) saturate(0.55) contrast(0.9);
+    clip-path: inset(0 0 0 50%);
+  }
+  /* the bright mask-only copy — only visible where mask is white, on right of handle */
+  .mask-stage .l-keep {
+    z-index: 3;
+    -webkit-mask-image: var(--mask-src);
+    mask-image: var(--mask-src);
+    -webkit-mask-size: cover;        mask-size: cover;
+    -webkit-mask-position: center;   mask-position: center;
+    -webkit-mask-repeat: no-repeat;  mask-repeat: no-repeat;
+    -webkit-mask-mode: luminance;    mask-mode: luminance;
+    clip-path: inset(0 0 0 50%);
+  }
+  /* accent outline of the mask — rendered using the mask asset, drop-shadowed */
+  .mask-stage .l-outline {
+    z-index: 4;
+    -webkit-mask-image: var(--mask-src);
+    mask-image: var(--mask-src);
+    -webkit-mask-size: cover;        mask-size: cover;
+    -webkit-mask-position: center;   mask-position: center;
+    -webkit-mask-repeat: no-repeat;  mask-repeat: no-repeat;
+    -webkit-mask-mode: luminance;    mask-mode: luminance;
+    background: transparent;
+    box-shadow: none;
+    clip-path: inset(0 0 0 50%);
+    /* draw a coloured border by stroking via filter */
+    background-image:
+      radial-gradient(circle, transparent 60%, transparent 60%);
+    /* outline drawn separately below via ::after */
+  }
+  .mask-stage .l-outline::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: var(--accent);
+    -webkit-mask-image: var(--mask-src);
+    mask-image: var(--mask-src);
+    -webkit-mask-size: cover;        mask-size: cover;
+    -webkit-mask-position: center;   mask-position: center;
+    -webkit-mask-repeat: no-repeat;  mask-repeat: no-repeat;
+    -webkit-mask-mode: luminance;    mask-mode: luminance;
+    filter: blur(0px);
+    opacity: 0.0;
+  }
+  .mask-handle {
+    position: absolute; top: 0; bottom: 0; width: 2px;
+    background: var(--paper-card);
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.4);
+    pointer-events: none;
+    z-index: 6;
+  }
+  .mask-handle::after {
+    content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--paper-card); box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+  }
+  .mask-handle::before {
+    content: "◀ ▶"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    font-family: var(--mono); font-size: 13px; color: var(--ink); z-index: 1; letter-spacing: 2px;
+  }
+  .mask-labels {
+    position: absolute; top: 14px; left: 0; right: 0;
+    display: flex; justify-content: space-between; padding: 0 16px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+    pointer-events: none;
+    z-index: 5;
+  }
+  .mask-labels span {
+    color: white; background: rgba(0,0,0,0.4); padding: 6px 10px;
+  }
+
+  /* ─── Before/after light comparator ────────────────────────── */
+  .compare-stage {
+    position: relative;
+    aspect-ratio: 16/9;
+    background: #1a1814;
+    overflow: hidden;
+    border-radius: 2px;
+    user-select: none;
+    cursor: ew-resize;
+  }
+  .compare-stage img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .compare-stage .right-clip { clip-path: inset(0 0 0 50%); }
+  .compare-stage .labels {
+    position: absolute; top: 14px; left: 0; right: 0;
+    display: flex; justify-content: space-between; padding: 0 16px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+    pointer-events: none;
+  }
+  .compare-stage .labels span {
+    color: white; background: rgba(0,0,0,0.4); padding: 6px 10px; backdrop-filter: blur(4px);
+  }
+  .compare-stage .labels span .key {
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; vertical-align: 1px;
+  }
+
+  .lux-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin-top: 14px; border: 1px solid var(--rule); }
+  .lux-bar .lux {
+    padding: 14px 18px;
+    background: var(--paper-card);
+  }
+  .lux-bar .lux:first-child { border-right: 1px solid var(--rule); }
+  .lux-bar .lux .k { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+  .lux-bar .lux .v { font-family: var(--display); font-size: 30px; color: var(--ink); margin-top: 4px; }
+  .lux-bar .lux.darker .v { color: var(--accent-2); }
+  .lux-bar .lux.brighter .v { color: var(--accent-3); }
+
+  /* ─── Method card ──────────────────────────────────────────── */
+  .method-card {
+    background: var(--paper-card);
+    border: 1px solid var(--rule);
+    padding: 36px 40px;
+    border-radius: 2px;
+  }
+  .method-card .h {
+    display: flex; align-items: baseline; gap: 16px; margin-bottom: 14px;
+  }
+  .method-card .h .badge {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    background: var(--ink); color: var(--paper); padding: 5px 10px;
+  }
+  .method-card .h h3 { font-size: 32px; margin: 0; }
+  .formula {
+    font-family: var(--mono); font-size: 13.5px;
+    background: var(--paper-warm);
+    padding: 12px 16px;
+    border-left: 2px solid var(--accent);
+    margin: 16px 0;
+    line-height: 1.55;
+    color: var(--ink);
+  }
+  .formula .frac { display: inline-block; vertical-align: middle; text-align: center; }
+  .formula .frac .num, .formula .frac .den { display: block; padding: 0 4px; }
+  .formula .frac .num { border-bottom: 1px solid var(--ink); }
+
+  .verdict {
+    margin-top: 24px;
+    padding: 16px 20px;
+    background: var(--paper-warm);
+    border-left: 3px solid var(--muted);
+    font-size: 15px; color: var(--ink-2);
+  }
+  .verdict.null { border-color: var(--muted); }
+  .verdict.signal { border-color: var(--accent); background: rgba(180,59,42,0.06); }
+  .verdict .tag { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase; display: block; margin-bottom: 4px; color: var(--accent); }
+  .verdict.null .tag { color: var(--muted); }
+
+  /* ─── Figure ────────────────────────────────────────────────── */
+  .figure {
+    background: var(--paper-card);
+    border: 1px solid var(--rule);
+    padding: 18px;
+    border-radius: 2px;
+  }
+  .figure img { width: 100%; height: auto; display: block; }
+  .figure .cap {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--rule-soft);
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; color: var(--muted);
+    text-transform: uppercase;
+  }
+  .figure .cap .num { color: var(--accent); margin-right: 10px; }
+
+  /* ─── Difference findings (Hb markers) ─────────────────────── */
+  .diff-section { background: var(--paper-soft); }
+  .diff-figure {
+    position: relative;
+    background: var(--paper-card);
+    border: 1px solid var(--rule);
+    padding: 18px;
+    border-radius: 2px;
+  }
+  .diff-figure img { width: 100%; display: block; }
+
+  .hb-list {
+    display: grid; grid-template-columns: 1fr; gap: 0;
+    border-top: 1px solid var(--rule);
+  }
+  .hb-list .hb {
+    display: grid; grid-template-columns: 80px 1fr 96px; align-items: center;
+    padding: 18px 0; border-bottom: 1px solid var(--rule-soft);
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .hb-list .hb:hover, .hb-list .hb.is-active { background: rgba(180,59,42,0.04); }
+  .hb-list .hb .nm {
+    font-family: var(--display); font-size: 28px; color: var(--ink);
+  }
+  .hb-list .hb .nm small { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-left: 4px; }
+  .hb-list .hb .desc { font-size: 14.5px; color: var(--ink-2); line-height: 1.45; padding-right: 14px; }
+  .hb-list .hb .pill {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 2px;
+    text-align: center;
+  }
+  .hb-list .hb.is-hbo2 .pill { background: rgba(196,74,58,0.15); color: var(--hbo2); border: 1px solid rgba(196,74,58,0.3); }
+  .hb-list .hb.is-hhb .pill { background: rgba(47,91,168,0.12); color: var(--hhb); border: 1px solid rgba(47,91,168,0.3); }
+  .hb-list .hb.is-iso .pill { background: rgba(110,99,87,0.12); color: var(--iso); border: 1px solid rgba(110,99,87,0.3); }
+
+  /* ─── Verdict comparison ───────────────────────────────────── */
+  .compare-finding {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 36px;
+  }
+  .compare-finding .col {
+    padding: 32px 36px;
+    background: var(--paper-card);
+  }
+  .compare-finding .col + .col { border-left: 1px solid var(--rule); }
+  .compare-finding .col.signal { background: rgba(180,59,42,0.07); }
+  .compare-finding .col .name { font-family: var(--display); font-size: 32px; margin-bottom: 4px; }
+  .compare-finding .col .verdict-line {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 18px;
+  }
+  .compare-finding .col.signal .verdict-line { color: var(--accent); }
+  .compare-finding .col .range { font-family: var(--display); font-size: 48px; line-height: 1; color: var(--ink); letter-spacing: -0.02em; }
+  .compare-finding .col .range small { font-family: var(--mono); font-size: 13px; color: var(--muted); margin-left: 4px; letter-spacing: 0.04em; }
+  .compare-finding .col p { margin-top: 14px; font-size: 14.5px; }
+
+  @media (max-width: 800px) { .compare-finding { grid-template-columns: 1fr; } .compare-finding .col + .col { border-left: 0; border-top: 1px solid var(--rule); } }
+
+  /* ─── Mini chart (raw mean spectra) ────────────────────────── */
+  .mini-chart {
+    background: var(--paper-card);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    padding: 24px;
+  }
+  .mini-chart h4 {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 4px; font-weight: 500;
+  }
+  .mini-chart .ttl { font-family: var(--display); font-size: 22px; line-height: 1.2; margin: 0 0 16px; }
+
+  /* ─── Limitations ──────────────────────────────────────────── */
+  .reco {
+    background: var(--paper-card);
+    border: 1px solid var(--rule);
+    padding: 32px 36px;
+    border-radius: 2px;
+    border-left: 3px solid var(--accent);
+  }
+  .reco h4 {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--accent); margin: 0 0 10px;
+  }
+  .reco h3 { font-size: 26px; margin-bottom: 8px; }
+
+  ul.steps { list-style: none; padding: 0; margin: 24px 0 0; }
+  ul.steps li {
+    display: grid; grid-template-columns: 36px 1fr; gap: 16px;
+    padding: 14px 0; border-top: 1px solid var(--rule-soft);
+    align-items: start;
+  }
+  ul.steps li:first-child { border-top: 0; }
+  ul.steps li .n {
+    font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: 0.18em;
+    padding-top: 3px;
+  }
+  ul.steps li .body { font-size: 15px; color: var(--ink-2); line-height: 1.55; }
+  ul.steps li .body strong { color: var(--ink); }
+
+  /* ─── Footer ───────────────────────────────────────────────── */
+  footer {
+    padding: 60px 7vw 80px;
+    border-top: 1px solid var(--rule);
+    margin-top: 80px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em;
+    color: var(--muted); text-transform: uppercase;
+    display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; flex-wrap: wrap;
+  }
+  footer .signature { font-family: var(--display); font-style: italic; font-size: 22px; color: var(--ink); text-transform: none; letter-spacing: 0; }
+
+  /* ─── Annotations / pull-quote ─────────────────────────────── */
+  .pull {
+    font-family: var(--display); font-size: clamp(28px, 3.4vw, 44px); line-height: 1.2;
+    color: var(--ink); margin: 40px 0; max-width: 22ch;
+    border-left: 3px solid var(--accent); padding-left: 24px;
+  }
+  .pull em { color: var(--accent); }
+
+  /* Reveal on scroll */
+  [data-reveal] { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s ease; }
+  [data-reveal].in { opacity: 1; transform: translateY(0); }
+
+  /* In-page tag list */
+  .taglist { display: flex; gap: 8px; flex-wrap: wrap; }
+  .taglist span {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 6px 10px; background: var(--paper-warm); color: var(--ink-2);
+  }
+
+  .legend-inline {
+    display: flex; gap: 18px; flex-wrap: wrap; margin-top: 12px;
+    font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.08em;
+  }
+  .legend-inline span { display: flex; align-items: center; gap: 6px; }
+  .legend-inline .sw { width: 14px; height: 4px; }
+
+  /* ─── Tweaks panel ─────────────────────────────────────────── */
+  #tweaksPanel {
+    position: fixed; right: 24px; bottom: 24px; z-index: 200;
+    width: 320px;
+    background: var(--paper-card);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08);
+    font-family: var(--body);
+    color: var(--ink);
+    display: none;
+    overflow: hidden;
+  }
+  #tweaksPanel.is-open { display: block; }
+  #tweaksPanel .tp-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--rule-soft);
+    background: var(--paper-warm);
+    cursor: grab;
+    user-select: none;
+  }
+  #tweaksPanel .tp-head .ttl {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink);
+  }
+  #tweaksPanel .tp-head .ttl .dot { display:inline-block; width:6px; height:6px; border-radius:50%; background: var(--accent); margin-right: 8px; vertical-align: 2px; }
+  #tweaksPanel .tp-head button {
+    background: transparent; border: 0; cursor: pointer; color: var(--muted);
+    font-family: var(--mono); font-size: 16px; padding: 0; line-height: 1;
+  }
+  #tweaksPanel .tp-head button:hover { color: var(--ink); }
+  #tweaksPanel .tp-body { padding: 18px 18px 20px; max-height: 70vh; overflow-y: auto; }
+  #tweaksPanel .tp-sec { margin-bottom: 22px; }
+  #tweaksPanel .tp-sec:last-child { margin-bottom: 0; }
+  #tweaksPanel .tp-label {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 10px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  #tweaksPanel .tp-label .val { color: var(--ink); }
+
+  /* palette swatches */
+  .tp-palettes { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .tp-swatch {
+    cursor: pointer;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 8px;
+    background: transparent;
+    text-align: left;
+    transition: border-color .15s ease, transform .15s ease;
+    font-family: var(--mono);
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-2);
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .tp-swatch:hover { transform: translateY(-1px); }
+  .tp-swatch.is-active { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  .tp-swatch .chips { display: flex; height: 22px; border-radius: 2px; overflow: hidden; border: 1px solid var(--rule-soft); }
+  .tp-swatch .chips i { flex: 1; }
+  .tp-swatch .nm { color: var(--ink); }
+
+  /* segmented */
+  .tp-seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border: 1px solid var(--rule); border-radius: 3px; overflow: hidden; }
+  .tp-seg button {
+    background: transparent; border: 0; padding: 8px 6px;
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); cursor: pointer;
+    border-right: 1px solid var(--rule-soft);
+  }
+  .tp-seg button:last-child { border-right: 0; }
+  .tp-seg button.is-active { background: var(--ink); color: var(--paper); }
+
+  /* slider */
+  .tp-range { -webkit-appearance: none; appearance: none; width: 100%; background: transparent; cursor: ew-resize; margin: 4px 0; }
+  .tp-range::-webkit-slider-runnable-track { background: var(--rule); height: 2px; }
+  .tp-range::-moz-range-track { background: var(--rule); height: 2px; }
+  .tp-range::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--ink); border: 3px solid var(--paper-card);
+    margin-top: -8px;
+    box-shadow: 0 0 0 1px var(--ink);
+  }
+  .tp-range::-moz-range-thumb {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--ink); border: 3px solid var(--paper-card);
+    box-shadow: 0 0 0 1px var(--ink);
+  }
+
+  /* toggle */
+  .tp-toggle { display: flex; align-items: center; justify-content: space-between; }
+  .tp-toggle .sw {
+    width: 36px; height: 20px; border-radius: 999px;
+    background: var(--rule); position: relative; cursor: pointer;
+    transition: background .15s ease;
+  }
+  .tp-toggle .sw::after {
+    content: ""; position: absolute; top: 2px; left: 2px;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--paper-card); box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    transition: left .15s ease;
+  }
+  .tp-toggle.is-on .sw { background: var(--accent); }
+  .tp-toggle.is-on .sw::after { left: 18px; }
+
+  /* Floating opener — appears when user hits the keyboard shortcut and panel is closed */
+  #tweaksOpener {
+    position: fixed; right: 24px; bottom: 24px; z-index: 199;
+    width: 44px; height: 44px;
+    background: var(--paper-card); border: 1px solid var(--rule); border-radius: 50%;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    cursor: pointer; display: none;
+    align-items: center; justify-content: center;
+    color: var(--ink);
+    font-family: var(--mono); font-size: 16px;
+  }
+  #tweaksOpener.is-shown { display: flex; }
+</style>
+</head>
+<body>
+
+<!-- ═══ TOP BAR ═══════════════════════════════════════════════════════ -->
+<header class="top-bar">
+  <div class="brand"><span class="dot"></span>EXFIT × MILK. INC</div>
+  <div class="meta">
+    <span>Study Brief</span>
+    <span class="sep"></span>
+    <span>MAY 2026</span>
+    <span class="sep"></span>
+    <span>For: EXFIT</span>
+  </div>
+</header>
+
+<!-- ═══ SIDE NAV ══════════════════════════════════════════════════════ -->
+<nav class="side-nav" id="sideNav">
+  <a href="#hero"     data-target="hero"><span class="label">Overview</span></a>
+  <a href="#camera"   data-target="camera"><span class="label">Camera</span></a>
+  <a href="#design"   data-target="design"><span class="label">Study Design</span></a>
+  <a href="#rgb"      data-target="rgb"><span class="label">Captures</span></a>
+  <a href="#mask"     data-target="mask"><span class="label">Region of Interest</span></a>
+  <a href="#problem"  data-target="problem"><span class="label">The Lighting Problem</span></a>
+  <a href="#methods"  data-target="methods"><span class="label">Methods</span></a>
+  <a href="#findings" data-target="findings"><span class="label">Findings</span></a>
+  <a href="#close"    data-target="close"><span class="label">Recommendations</span></a>
+</nav>
+
+<!-- ═══ HERO ══════════════════════════════════════════════════════════ -->
+<section class="hero" id="hero">
+  <div class="container">
+    <div class="eyebrow"><span class="num">01 ·</span><span class="line"></span><span>EXFIT × Hyperspectral imaging study</span></div>
+    <h1>Quantifying the effects of EMS using <span class="ital">Hyperspectral Data</span></h1>
+
+    <p class="deck">Two subjects. 141 wavelengths between 350–1050 nm. Captures before, during and after EMS. This brief walks the client through what we measured, what got in the way, and what one of the two subjects' spectra is quietly suggesting.</p>
+
+    <div class="hero-meta">
+      <div class="cell"><div class="k">Subjects</div><div class="v">Naito · Nakaya<small>2 individuals</small></div></div>
+      <div class="cell"><div class="k">Wavelengths</div><div class="v">141<small>5 nm step · 350–1050 nm</small></div></div>
+      <div class="cell"><div class="k">Captures</div><div class="v">15<small>baseline → during → post</small></div></div>
+      <div class="cell"><div class="k">Method focus</div><div class="v">SNV · 1<sup>st</sup>&nbsp;Deriv. · Δ<small>intensity-invariant</small></div></div>
+    </div>
+  </div>
+  <div class="scroll-cue"><span>Scroll</span><div class="stick"></div></div>
+</section>
+
+<!-- ═══ 02 · OBJECTIVE & CAMERA ══════════════════════════════════════ -->
+<section id="camera">
+  <div class="container">
+    <div class="grid-2">
+      <div class="col">
+        <div class="eyebrow"><span class="num">02 ·</span><span class="line"></span><span>Objective &amp; instrument</span></div>
+        <h2>Look <em>through</em> the skin, not just at it.</h2>
+        <p class="lead">A normal camera sees three wavelengths — red, green, blue. The hyperspectral camera we used sees <strong>141 wavelengths</strong>, sampled every 5&nbsp;nm from 350&nbsp;nm (near-UV) to 1050&nbsp;nm (near-infrared).</p>
+        <p>The longer wavelengths penetrate a few millimetres into the dermis, which is where the small blood vessels live. If EMS changes how oxygenated blood flows under the skin, the absorption spectrum at those wavelengths should change shape. So we asked a simple question — drag the slider to scan the band — and recorded the answer 141 times per pixel.</p>
+
+        <p class="small">Camera config · <span class="mono">roko 2800 / gain 200</span> · back-of-torso framing · controlled indoor lighting.</p>
+      </div>
+
+      <div class="col">
+        <div class="camera-stage" data-reveal>
+          <div class="caption" style="margin-bottom: 4px;">Drag to scan the bands the camera captures</div>
+
+          <input type="range" id="wlSlider" class="spectrum-input" min="350" max="1050" step="5" value="660">
+
+          <div class="spectrum-bar" id="spectrumBar">
+            <div class="ticks">
+              <span class="major" data-label="350" style="left: 0%;"></span>
+              <span data-label="" style="left: 7.14%;"></span>
+              <span class="major" data-label="500" style="left: 21.43%;"></span>
+              <span data-label="" style="left: 28.57%;"></span>
+              <span class="major" data-label="700" style="left: 50%;"></span>
+              <span data-label="" style="left: 57.14%;"></span>
+              <span class="major" data-label="900" style="left: 78.57%;"></span>
+              <span class="major" data-label="1050" style="left: 100%;"></span>
+            </div>
+            <div class="spectrum-cursor" id="spectrumCursor" style="left: 44.3%;"></div>
+          </div>
+
+          <div class="spectrum-controls">
+            <div class="spectrum-readout">
+              <div class="k">Selected wavelength</div>
+              <div class="v"><span id="wlValue">660</span><small>nm</small></div>
+              <div class="k">Band index <span id="bandIndex" style="color: var(--ink); margin-left: 6px;">63 / 141</span></div>
+            </div>
+            <div class="spectrum-band">
+              <span class="badge" id="bandBadge">VISIBLE · RED</span>
+              <small class="note" id="bandNote">In the red region; haemoglobin still absorbs strongly here.</small>
+            </div>
+          </div>
+
+          <div class="band-stack" id="bandStack"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 03 · STUDY DESIGN ════════════════════════════════════════════ -->
+<section id="design">
+  <div class="container">
+    <div class="eyebrow"><span class="num">03 ·</span><span class="line"></span><span>Study design</span></div>
+    <h2>Two subjects, one timeline.</h2>
+    <p class="lead" style="margin-bottom: 36px;">Each subject was imaged at rest, twice, before EMS — then several times <em>during</em> stimulation with the EMS suit on — then once more immediately after the suit was removed. The back was the region of interest.</p>
+
+    <div class="grid-3" style="margin-top: 8px;">
+      <div class="stat-card">
+        <div class="num">2<span class="unit">subjects</span></div>
+        <div class="lbl">Naito · Nakaya</div>
+        <p>Healthy adults, back imaged from approximately 2&nbsp;m, identical posture across sessions.</p>
+      </div>
+      <div class="stat-card">
+        <div class="num">141<span class="unit">bands</span></div>
+        <div class="lbl">350 → 1050 nm · 5 nm step</div>
+        <p>Each pixel is a full reflectance spectrum — not a colour.</p>
+      </div>
+      <div class="stat-card">
+        <div class="num">15<span class="unit">captures</span></div>
+        <div class="lbl">2× baseline + 3–6× during + 1× after</div>
+        <p>Naito: 5 captures. Nakaya: 9 captures. Differences in protocol noted later.</p>
+      </div>
+    </div>
+
+    <div class="timeline" data-reveal>
+      <div class="caption" style="margin-left: 30px;">Capture timeline · Nakaya (longest series)</div>
+      <div class="timeline-track" id="timelineTrack">
+        <div class="tl-phase stim" style="left: 22%; width: 56%;">EMS suit on</div>
+        <div class="tl-tick is-baseline" style="left: 4%;"><div class="dot"></div><div class="lab">Before</div><div class="sub">Baseline 1</div></div>
+        <div class="tl-tick is-baseline" style="left: 16%;"><div class="dot"></div><div class="lab">Before 2</div><div class="sub">Baseline 2</div></div>
+        <div class="tl-tick is-stim" style="left: 26%;"><div class="dot"></div><div class="lab">Mid 1</div><div class="sub">During EMS</div></div>
+        <div class="tl-tick is-stim" style="left: 34%;"><div class="dot"></div><div class="lab">Mid 2</div><div class="sub"></div></div>
+        <div class="tl-tick is-stim" style="left: 42%;"><div class="dot"></div><div class="lab">Mid 3</div><div class="sub"></div></div>
+        <div class="tl-tick is-stim" style="left: 50%;"><div class="dot"></div><div class="lab">Mid 4</div><div class="sub"></div></div>
+        <div class="tl-tick is-stim" style="left: 58%;"><div class="dot"></div><div class="lab">Mid 5</div><div class="sub"></div></div>
+        <div class="tl-tick is-stim" style="left: 66%;"><div class="dot"></div><div class="lab">Mid 6</div><div class="sub"></div></div>
+        <div class="tl-tick" style="left: 86%;"><div class="dot"></div><div class="lab">After</div><div class="sub">Suit removed</div></div>
+      </div>
+      <div style="height: 64px;"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 04 · RGB COMPOSITES ══════════════════════════════════════════ -->
+<section id="rgb" style="background: var(--paper-soft);">
+  <div class="container">
+    <div class="eyebrow"><span class="num">04 ·</span><span class="line"></span><span>What the data looks like</span></div>
+    <h2>Pseudo-RGB composites.</h2>
+    <p class="lead" style="margin-bottom: 28px;">Out of the 141 bands, we pull three (≈630, ≈530, ≈460 nm) to render a familiar colour image. This is purely a visual check that subjects are aligned and the camera fired correctly — the analysis itself uses all 141 bands.</p>
+
+    <div class="subj-tabs" id="rgbTabs">
+      <button data-subj="naito"  class="is-active">Naito <span class="count">5 captures</span></button>
+      <button data-subj="nakaya">Nakaya <span class="count">9 captures</span></button>
+    </div>
+
+    <div class="gallery-main" id="rgbMain">
+      <div class="meta"><span class="stage" id="rgbStage">BEFORE</span> &nbsp;·&nbsp; <span id="rgbSubj">Naito</span> &nbsp;·&nbsp; pseudo-RGB</div>
+      <!-- images injected by JS -->
+    </div>
+
+    <div class="gallery-strip" id="rgbStrip"></div>
+  </div>
+</section>
+
+<!-- ═══ 05 · MASK ────────────────────────────────────────────────────── -->
+<section id="mask">
+  <div class="container">
+    <div class="grid-2">
+      <div class="col">
+        <div class="eyebrow"><span class="num">05 ·</span><span class="line"></span><span>Region of interest</span></div>
+        <h2>Cut everything that isn't the back.</h2>
+        <p class="lead">The EMS suit only stimulates the back muscles. The room, the curtains, the chair, the subject's neck and arms — none of that should contribute to the spectrum.</p>
+        <p>So before averaging anything, we draw a binary mask around the back portion of each image (stored as a <span class="mono">.npy</span> boolean array, rendered here as a filled silhouette). The 141-band spectra are then averaged <em>only</em> over the white pixels of the mask.</p>
+        <p class="small">Drag the handle to slide the mask overlay on or off the RGB.</p>
+        <div class="taglist" style="margin-top: 22px;">
+          <span>.npy boolean mask</span>
+          <span>~ 1.6M pixels</span>
+          <span>Same mask per subject</span>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="mask-stage" id="maskStage" data-reveal style="--mask-src: url('assets/masks/nakaya_before.jpg');">
+          <img class="layer l-base" id="maskRgbBase" src="assets/rgb/nakaya_before.jpg" alt="">
+          <div class="layer l-dim"  id="maskDim" style="background-image: url('assets/rgb/nakaya_before.jpg'); background-size: cover; background-position: center;"></div>
+          <img class="layer l-keep" id="maskRgbKeep" src="assets/rgb/nakaya_before.jpg" alt="">
+          <div class="mask-handle" id="maskHandle" style="left: 50%;"></div>
+          <div class="mask-labels">
+            <span>Raw RGB</span>
+            <span>Mask applied</span>
+          </div>
+        </div>
+        <p class="caption" style="margin-top: 12px;">FIG. 05 · NAKAYA, BEFORE — mask drawn over RGB</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 06 · THE PROBLEM ════════════════════════════════════════════ -->
+<section id="problem" style="background: var(--paper-soft);">
+  <div class="container">
+    <div class="eyebrow"><span class="num">06 ·</span><span class="line"></span><span>The first attempt — and why it failed</span></div>
+    <h2>The mean spectra moved.<br><em>The lighting did too.</em></h2>
+    <p class="lead" style="margin-top: 18px; margin-bottom: 48px;">Our first instinct was simply to plot the average reflectance spectrum of the masked back at each time-point and compare them. Early on, the curves clearly shifted between "before" and "after" — and we briefly thought we were watching EMS at work.</p>
+
+    <div class="grid-2 tight" style="align-items: stretch;">
+      <div class="col">
+        <h3 style="margin-bottom: 14px;">Drag — same subject, two sessions.</h3>
+        <p style="margin-bottom: 14px;">Nakaya before EMS (left) versus Nakaya after EMS (right). Same subject, same room, same camera settings. But the room got brighter between the two sessions. Skin reflectance scales <em>multiplicatively</em> with incoming light — so the mean spectrum's amplitude shifted, not because of EMS but because of the lamp.</p>
+
+        <div class="compare-stage" id="compareStage">
+          <img id="compareLeft"  src="assets/rgb/nakaya_before.jpg" alt="">
+          <img id="compareRight" class="right-clip" src="assets/rgb/nakaya_after.jpg" alt="">
+          <div class="labels">
+            <span><span class="key" style="background: var(--accent-2);"></span>Before</span>
+            <span><span class="key" style="background: var(--accent-3);"></span>After</span>
+          </div>
+          <div class="mask-handle" id="compareHandle" style="left: 50%;"></div>
+        </div>
+
+        <div class="lux-bar">
+          <div class="lux darker">
+            <div class="k">Before — perceived brightness</div>
+            <div class="v">≈ 0.41</div>
+          </div>
+          <div class="lux brighter">
+            <div class="k">After — perceived brightness</div>
+            <div class="v">≈ 0.55</div>
+          </div>
+        </div>
+        <p class="caption" style="margin-top: 12px;">Brightness from a luma estimate of the masked region — visible to the eye.</p>
+      </div>
+
+      <div class="col">
+        <div class="mini-chart" data-reveal>
+          <h4>Raw mean spectra — illustrative</h4>
+          <div class="ttl">Same back. Different brightness curve.</div>
+          <svg viewBox="0 0 600 320" preserveAspectRatio="none" style="width: 100%; height: auto;">
+            <!-- grid -->
+            <g style="stroke: var(--rule);" stroke-width="1" opacity="0.6">
+              <line x1="40" y1="20"  x2="580" y2="20" />
+              <line x1="40" y1="90"  x2="580" y2="90" />
+              <line x1="40" y1="160" x2="580" y2="160" />
+              <line x1="40" y1="230" x2="580" y2="230" />
+              <line x1="40" y1="290" x2="580" y2="290" />
+            </g>
+            <!-- axis -->
+            <line x1="40" y1="290" x2="580" y2="290" style="stroke: var(--ink);" stroke-width="1.5"/>
+            <line x1="40" y1="20"  x2="40"  y2="290" style="stroke: var(--ink);" stroke-width="1.5"/>
+            <text x="40"  y="310" font-family="JetBrains Mono" font-size="10" style="fill: var(--muted);">400</text>
+            <text x="200" y="310" font-family="JetBrains Mono" font-size="10" style="fill: var(--muted);">600</text>
+            <text x="380" y="310" font-family="JetBrains Mono" font-size="10" style="fill: var(--muted);">800</text>
+            <text x="560" y="310" font-family="JetBrains Mono" font-size="10" style="fill: var(--muted);">1050</text>
+            <text x="14" y="160" font-family="JetBrains Mono" font-size="10" style="fill: var(--muted);" transform="rotate(-90 14 160)">Reflectance</text>
+            <!-- before curve (lower amplitude) -->
+            <path d="M40,275 C100,265 130,235 160,205 S230,150 290,135 360,128 410,148 460,180 510,220 550,255 580,270" fill="none" style="stroke: var(--accent-2);" stroke-width="2.5"/>
+            <!-- after curve (higher amplitude) -->
+            <path d="M40,260 C100,245 130,205 160,165 S230,90 290,75 360,68 410,90 460,128 510,178 550,225 580,250" fill="none" style="stroke: var(--accent-3);" stroke-width="2.5"/>
+            <!-- middle phases (faded) -->
+            <path d="M40,270 C100,257 130,222 160,188 S230,125 290,108 360,100 410,121 460,156 510,200 550,238 580,260" fill="none" style="stroke: var(--ink-2);" stroke-width="1" stroke-dasharray="3 3" opacity="0.35"/>
+            <path d="M40,268 C100,253 130,215 160,178 S230,110 290,93 360,86 410,108 460,144 510,192 550,232 580,256" fill="none" style="stroke: var(--ink-2);" stroke-width="1" stroke-dasharray="3 3" opacity="0.35"/>
+            <!-- gap arrow -->
+            <line x1="290" y1="75" x2="290" y2="135" style="stroke: var(--accent);" stroke-width="1.5" stroke-dasharray="4 3"/>
+            <polygon points="290,75 286,82 294,82" style="fill: var(--accent);"/>
+            <polygon points="290,135 286,128 294,128" style="fill: var(--accent);"/>
+            <text x="298" y="108" font-family="JetBrains Mono" font-size="10" style="fill: var(--accent);">amplitude shift = light, not EMS</text>
+          </svg>
+          <div class="legend-inline">
+            <span><span class="sw" style="background: var(--accent-2);"></span>Before EMS</span>
+            <span><span class="sw" style="background: var(--accent-3);"></span>After EMS</span>
+            <span><span class="sw" style="background: var(--ink); opacity: 0.5;"></span>During (mid 1–6)</span>
+          </div>
+        </div>
+
+        <div class="pull">A multiplicative <em>change in lighting</em> produces exactly the same kind of curve shift we were hoping EMS would produce. We had to throw the raw means out.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 07 · METHODS ════════════════════════════════════════════════ -->
+<section id="methods">
+  <div class="container">
+    <div class="eyebrow"><span class="num">07 ·</span><span class="line"></span><span>The pivot</span></div>
+    <h2>Switch to <em>intensity-invariant</em> methods.</h2>
+    <p class="lead" style="margin-bottom: 48px;">If we can't trust the absolute brightness of the spectrum, we can still trust its <em>shape</em>. The two methods that follow both throw away absolute brightness on purpose and keep only the spectral shape. That's what we report on.</p>
+
+    <!-- SNV -->
+    <div class="method-card" data-reveal style="margin-bottom: 28px;">
+      <div class="h">
+        <span class="badge">Method 01</span>
+        <h3>SNV — Standard Normal Variate</h3>
+      </div>
+      <div class="grid-2 tight">
+        <div class="col">
+          <p>For every spectrum we subtract its own mean and divide by its own standard deviation, band by band. The result is a curve centred on zero and scaled to unit variance — its absolute brightness is gone, but its <strong>shape</strong> is preserved.</p>
+          <div class="formula">
+            SNV(λ) =&nbsp; <span class="frac"><span class="num">R(λ) − μ<sub>R</sub></span><span class="den">σ<sub>R</sub></span></span>
+          </div>
+          <p>If a lamp brightens by 20 %, every R(λ) scales by 1.2 — but μ and σ scale by 1.2 too, and the ratio cancels. Two captures of the same back, lit differently, should now lie on top of each other. Any remaining difference between them is the tissue, not the room.</p>
+          <div class="verdict null">
+            <span class="tag">Observation · null result</span>
+            For both Naito and Nakaya, all 5–9 SNV curves lie almost perfectly on top of each other across the entire 350–1050 nm range. The spectral <em>shape</em> of the back hasn't moved during or after EMS at the resolution we can see.
+          </div>
+        </div>
+        <div class="col">
+          <div class="figure">
+            <img src="assets/fig1_snv_spectra.png" alt="SNV-normalised mean spectra for Naito and Nakaya">
+            <div class="cap"><span class="num">FIG. 07a</span>SNV spectra — Naito (top), Nakaya (bottom). Baseline, all during-EMS captures, and the after capture overlay nearly perfectly.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1st Derivative -->
+    <div class="method-card" data-reveal>
+      <div class="h">
+        <span class="badge">Method 02</span>
+        <h3>First-order derivative (Savitzky-Golay)</h3>
+      </div>
+      <div class="grid-2 tight">
+        <div class="col">
+          <p>Instead of looking at the spectrum, we look at how fast it changes from one wavelength to the next — dR/dλ — after a light Savitzky-Golay smoothing.</p>
+          <div class="formula">dR/dλ = slope of reflectance vs. wavelength</div>
+          <p>Multiplicative lighting (constant × R) becomes a constant <em>scale factor</em> on the derivative; the <em>positions</em> of peaks and zero-crossings — which is where haemoglobin's absorption fingerprints sit — don't move. So if the oxygenation state actually changed, we should see those features shift.</p>
+          <div class="verdict null">
+            <span class="tag">Observation · null result</span>
+            All derivative curves coincide. The twin peaks near 500–610 nm — the visible haemoglobin signature — are stable across all captures for both subjects. No peak shifts, no amplitude shifts large enough to matter.
+          </div>
+        </div>
+        <div class="col">
+          <div class="figure">
+            <img src="assets/fig2_derivative_spectra.png" alt="First-derivative spectra for Naito and Nakaya">
+            <div class="cap"><span class="num">FIG. 07b</span>1<sup>st</sup>-derivative spectra — dotted lines at key Hb wavelengths (577, 760, 850 nm).</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="pull">Two intensity-invariant methods. Two null results. <em>So far,</em> EMS hasn't moved the spectrum in any way these shape-based summaries can detect.</p>
+  </div>
+</section>
+
+<!-- ═══ 08 · DIFFERENCE FINDINGS ════════════════════════════════════ -->
+<section id="findings" class="diff-section">
+  <div class="container">
+    <div class="eyebrow"><span class="num">08 ·</span><span class="line"></span><span>Where a signal finally appears</span></div>
+    <h2>SNV(After) − SNV(Before).</h2>
+    <p class="lead" style="margin-bottom: 36px;">If overlaying the curves shows them as identical, the obvious next step is to subtract them and look at what's left. We SNV-normalise both endpoints first — so lighting is already gone — then compute (after − before) at every wavelength.</p>
+
+    <div class="diff-figure" data-reveal>
+      <img src="assets/fig5_difference_spectra.png" alt="SNV difference spectra after - before, for Naito and Nakaya">
+      <div class="cap" style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--rule-soft);">
+        <span style="color: var(--accent); margin-right: 10px;">FIG. 08</span>
+        SNV(after) − SNV(before). Red fill = more reflectance after EMS. Blue fill = less. Dashed lines mark haemoglobin absorption wavelengths.
+      </div>
+    </div>
+
+    <!-- How to read directions -->
+    <div class="method-card" data-reveal style="margin-top: 36px;">
+      <div class="h">
+        <span class="badge">How to read it</span>
+        <h3>Reflectance is the <em>inverse</em> of absorption.</h3>
+      </div>
+      <p style="max-width: 78ch;">More reflectance at a wavelength means <strong>less absorption</strong> by whatever Hb species dominates there — and vice versa. So a positive Δ at a wavelength where HHb (deoxy) is the main absorber implies <em>less HHb after EMS</em>. A negative Δ at that same wavelength implies <em>more HHb after EMS</em>.</p>
+      <div class="grid-3" style="margin-top: 20px;">
+        <div class="stat-card" style="padding: 18px 22px;">
+          <div class="lbl" style="margin: 0;">660 nm</div>
+          <h3 style="font-size: 18px; margin-top: 6px;">HHb dominant absorber</h3>
+          <p style="margin-top: 6px; font-size: 13.5px;">Δ negative ⇒ reflectance ↓ ⇒ absorption ↑ ⇒ <strong>more HHb after</strong>.</p>
+        </div>
+        <div class="stat-card" style="padding: 18px 22px;">
+          <div class="lbl" style="margin: 0;">760 nm</div>
+          <h3 style="font-size: 18px; margin-top: 6px;">HHb NIR peak</h3>
+          <p style="margin-top: 6px; font-size: 13.5px;">Δ positive ⇒ absorption ↓ ⇒ <strong>less HHb after</strong>.</p>
+        </div>
+        <div class="stat-card" style="padding: 18px 22px;">
+          <div class="lbl" style="margin: 0;">850 nm</div>
+          <h3 style="font-size: 18px; margin-top: 6px;">HbO₂ NIR peak</h3>
+          <p style="margin-top: 6px; font-size: 13.5px;">Δ positive ⇒ absorption ↓ ⇒ <strong>less HbO₂ after</strong>.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparison -->
+    <div class="compare-finding">
+      <div class="col">
+        <div class="name">Naito</div>
+        <div class="verdict-line">Within noise floor</div>
+        <div class="range">&lt; 0.01<small>ΔSNV</small></div>
+        <p>The difference oscillates around zero with no consistent pattern. Positive and negative excursions are similar in magnitude and don't line up coherently with haemoglobin landmarks. We read this as <strong>noise</strong>, not biology.</p>
+      </div>
+      <div class="col signal">
+        <div class="name">Nakaya</div>
+        <div class="verdict-line">Amplitude is larger — directions disagree</div>
+        <div class="range">0.01 – 0.02<small>ΔSNV</small></div>
+        <p>Roughly two to three times Naito's amplitude, and its excursions <em>do</em> land on Hb wavelengths. But the directions don't tell a clean story: <strong>660 nm goes negative</strong> (more HHb after), <strong>760 nm goes positive</strong> (less HHb after), and <strong>850 nm goes positive</strong> (less HbO₂ after). 660 and 850 lean toward <em>more</em> deoxygenation; 760 contradicts. The Hb-shaped <em>amplitude</em> is real, but it does not validate an oxygenation-improvement story.</p>
+      </div>
+    </div>
+
+    <p class="pull" style="margin-top: 44px;">The biggest spectral feature in the dataset sits on Nakaya — but its direction map is <em>contradictory</em>. Not a confirmation of EMS effect; not a refutation either. <em>Inconclusive.</em></p>
+  </div>
+</section>
+
+<!-- ═══ 09 · LIMITATIONS / RECOMMENDATIONS ═══════════════════════════ -->
+<section id="close" style="background: var(--paper-soft);">
+  <div class="container">
+    <div class="eyebrow"><span class="num">09 ·</span><span class="line"></span><span>Honest caveats &amp; next steps</span></div>
+    <h2>What to fix in&nbsp;v2.</h2>
+    <p class="lead" style="margin-bottom: 36px;">Even with the SNV pivot, the dominant source of variance in this dataset is still ambient lighting. Nakaya carries the only Hb-scale feature in the data — but its directions don't line up into a clear oxygenation story. The protocol can be hardened so a v2 study can actually tell signal from noise.</p>
+
+    <div class="reco" data-reveal>
+      <h4>Headline recommendation</h4>
+      <h3>Get closer, smaller, longer.</h3>
+      <p style="margin-top: 12px;">A tighter framing of a smaller body region, a closer working distance, and a longer EMS exposure window would all shift the signal-to-noise balance heavily in our favour. Today's results — including Nakaya's Hb-scale but directionally mixed Δ — are at best <em>inconclusive</em>; that's the ceiling a v2 protocol needs to push well past.</p>
+
+      <ul class="steps">
+        <li><span class="n">01</span><div class="body"><strong>Image one small region.</strong> Instead of the whole back, frame a single muscle group (lumbar, latissimus) so each pixel sees more skin and less background. More photons per pixel, fewer mixing effects.</div></li>
+        <li><span class="n">02</span><div class="body"><strong>Reduce working distance.</strong> Move the camera closer. This both increases the resolved area per pixel and stabilises the geometry between captures so lighting changes are easier to model out.</div></li>
+        <li><span class="n">03</span><div class="body"><strong>Lock the lighting.</strong> Identical lamp, identical exposure, identical room state at every capture — and a colour reference panel in frame. SNV is a workaround; controlled lighting is the actual fix.</div></li>
+        <li><span class="n">04</span><div class="body"><strong>Run EMS longer.</strong> Hyperemia builds over minutes. A longer stimulation window and a precise post-EMS timing log (e.g. capture at +1, +3, +5 min) will let us read the vascular response curve, not just a snapshot.</div></li>
+        <li><span class="n">05</span><div class="body"><strong>More subjects.</strong> Naito vs Nakaya is enough to flag inter-subject divergence — not enough to characterise it.</div></li>
+      </ul>
+    </div>
+
+    <hr class="rule">
+
+    <h3 style="font-size: 28px; margin-bottom: 18px;">What we are claiming today</h3>
+    <div class="grid-3">
+      <div class="stat-card" style="border-left: 3px solid var(--muted);">
+        <div class="lbl" style="margin-top: 0;">SNV spectra</div>
+        <h3 style="font-size: 20px; margin-top: 8px;">No detectable change in spectral shape across the EMS timeline.</h3>
+      </div>
+      <div class="stat-card" style="border-left: 3px solid var(--muted);">
+        <div class="lbl" style="margin-top: 0;">1<sup>st</sup>-derivative</div>
+        <h3 style="font-size: 20px; margin-top: 8px;">No shift in haemoglobin peak positions during or after EMS.</h3>
+      </div>
+      <div class="stat-card" style="border-left: 3px solid var(--accent);">
+        <div class="lbl" style="margin-top: 0; color: var(--accent);">Δ SNV (After − Before)</div>
+        <h3 style="font-size: 20px; margin-top: 8px;">Nakaya carries the only Hb-scale feature (~0.01–0.02), but the directions at 660 / 760 / 850 nm disagree. <em>Inconclusive.</em></h3>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div>PREPARED FOR EXFIT  ·  INTERNAL REVIEW  ·  V 1.0  ·  MAY 2026</div>
+  <div class="signature">— Hyperspectral analysis team</div>
+</footer>
+
+<!-- ═══ SCRIPT ═══════════════════════════════════════════════════════ -->
+<script>
+(function() {
+  /* ─── Wavelength → colour helper ───────────────────────────── */
+  function wlToColor(nm) {
+    let r=0, g=0, b=0;
+    if (nm >= 380 && nm < 440) { r = -(nm-440)/(440-380); g = 0; b = 1; }
+    else if (nm < 490) { r = 0; g = (nm-440)/(490-440); b = 1; }
+    else if (nm < 510) { r = 0; g = 1; b = -(nm-510)/(510-490); }
+    else if (nm < 580) { r = (nm-510)/(580-510); g = 1; b = 0; }
+    else if (nm < 645) { r = 1; g = -(nm-645)/(645-580); b = 0; }
+    else if (nm <= 780) { r = 1; g = 0; b = 0; }
+    let factor = 1;
+    if (nm < 380) factor = 0.35;
+    else if (nm < 420) factor = 0.3 + 0.7*(nm-380)/40;
+    else if (nm > 700 && nm <= 780) factor = 0.3 + 0.7*(780-nm)/80;
+    else if (nm > 780 && nm <= 1050) factor = Math.max(0.15, 0.3*(1050-nm)/270);
+    if (nm > 780) { r = 0.6; g = 0.05; b = 0.05; } /* deep red→NIR */
+    if (nm > 850) { r = 0.3 + 0.3*(1050-nm)/200; g = 0.04; b = 0.04; }
+    if (nm < 380) { r = 0.4*(nm-330)/50; g = 0.05; b = 0.55; }
+    r = Math.round(Math.max(0, Math.min(1, r*factor))*255);
+    g = Math.round(Math.max(0, Math.min(1, g*factor))*255);
+    b = Math.round(Math.max(0, Math.min(1, b*factor))*255);
+    return `rgb(${r},${g},${b})`;
+  }
+
+  /* ─── Wavelength slider ────────────────────────────────────── */
+  const slider = document.getElementById('wlSlider');
+  const cursor = document.getElementById('spectrumCursor');
+  const wlValue = document.getElementById('wlValue');
+  const bandIndex = document.getElementById('bandIndex');
+  const bandBadge = document.getElementById('bandBadge');
+  const bandNote  = document.getElementById('bandNote');
+  const bandStack = document.getElementById('bandStack');
+
+  /* build 141 bands */
+  for (let i = 0; i < 141; i++) {
+    const nm = 350 + i*5;
+    const b = document.createElement('div');
+    b.className = 'band';
+    b.style.setProperty('--current', wlToColor(nm));
+    b.dataset.nm = nm;
+    b.dataset.i = i;
+    bandStack.appendChild(b);
+  }
+
+  function bandInfo(nm) {
+    if (nm < 400)  return { label: 'NEAR-UV',          klass: 'uv',      note: 'Below visible. Heavy absorption by melanin and proteins; mostly skin-surface info.' };
+    if (nm < 450)  return { label: 'VISIBLE · VIOLET', klass: 'visible', note: 'Violet — strongly absorbed by haemoglobin; shallow penetration.' };
+    if (nm < 495)  return { label: 'VISIBLE · BLUE',   klass: 'visible', note: 'Blue light barely penetrates the skin; mostly surface reflectance.' };
+    if (nm < 570)  return { label: 'VISIBLE · GREEN',  klass: 'visible', note: 'Green — HbO₂ absorption peaks at 540 and 577 nm sit in this window.' };
+    if (nm < 590)  return { label: 'VISIBLE · YELLOW', klass: 'visible', note: 'Yellow — between the two HbO₂ peaks; sensitive to total haemoglobin.' };
+    if (nm < 620)  return { label: 'VISIBLE · ORANGE', klass: 'visible', note: 'Orange — beginning of the optical window into the dermis.' };
+    if (nm < 700)  return { label: 'VISIBLE · RED',    klass: 'visible', note: 'Red — light penetrates a few mm; haemoglobin still absorbs at ~660 nm (HHb).' };
+    if (nm < 800)  return { label: 'NIR · SHORT',      klass: 'nir',     note: 'Near-infrared. The 760 nm trough is the diagnostic HHb absorption peak.' };
+    if (nm < 900)  return { label: 'NIR · MID',        klass: 'nir',     note: 'NIR. 800 nm is isosbestic (Hb = HbO₂); 850 nm is an HbO₂ peak.' };
+    return            { label: 'NIR · LONG',       klass: 'nir',     note: 'Deep NIR. Greatest tissue penetration; sensitive to water and lipids too.' };
+  }
+
+  function updateWL(nm) {
+    const i = Math.round((nm - 350) / 5);
+    const pct = ((nm - 350) / (1050 - 350)) * 100;
+    cursor.style.left = pct + '%';
+    wlValue.textContent = nm;
+    bandIndex.innerHTML = (i+1) + ' / 141';
+    const info = bandInfo(nm);
+    bandBadge.textContent = info.label;
+    bandBadge.className = 'badge ' + info.klass;
+    bandNote.textContent = info.note;
+    /* highlight band stack */
+    [...bandStack.children].forEach((el, idx) => {
+      el.classList.toggle('active', idx === i);
+    });
+  }
+  slider.addEventListener('input', e => updateWL(+e.target.value));
+  updateWL(660);
+
+  /* ─── RGB gallery ──────────────────────────────────────────── */
+  const RGB = {
+    naito: [
+      { stage: 'BEFORE',   src: 'assets/rgb/naito_before.jpg' },
+      { stage: 'BEFORE 2', src: 'assets/rgb/naito_before2.jpg' },
+      { stage: 'MID 1',    src: 'assets/rgb/naito_1.jpg' },
+      { stage: 'MID 2',    src: 'assets/rgb/naito_2.jpg' },
+      { stage: 'MID 3',    src: 'assets/rgb/naito_3.jpg' },
+      { stage: 'AFTER',    src: 'assets/rgb/naito_after.jpg' },
+    ],
+    nakaya: [
+      { stage: 'BEFORE',   src: 'assets/rgb/nakaya_before.jpg' },
+      { stage: 'BEFORE 2', src: 'assets/rgb/nakaya_before2.jpg' },
+      { stage: 'MID 1',    src: 'assets/rgb/nakaya_1.jpg' },
+      { stage: 'MID 2',    src: 'assets/rgb/nakaya_2.jpg' },
+      { stage: 'MID 3',    src: 'assets/rgb/nakaya_3.jpg' },
+      { stage: 'MID 4',    src: 'assets/rgb/nakaya_4.jpg' },
+      { stage: 'MID 5',    src: 'assets/rgb/nakaya_5.jpg' },
+      { stage: 'MID 6',    src: 'assets/rgb/nakaya_6.jpg' },
+      { stage: 'AFTER',    src: 'assets/rgb/nakaya_after.jpg' },
+    ]
+  };
+  const rgbMain  = document.getElementById('rgbMain');
+  const rgbStrip = document.getElementById('rgbStrip');
+  const rgbStage = document.getElementById('rgbStage');
+  const rgbSubj  = document.getElementById('rgbSubj');
+  let currentSubj = 'naito';
+  let currentIdx  = 0;
+
+  function renderGallery() {
+    /* remove previous imgs (keep .meta) */
+    [...rgbMain.querySelectorAll('img')].forEach(n => n.remove());
+    rgbStrip.innerHTML = '';
+    RGB[currentSubj].forEach((c, i) => {
+      const img = document.createElement('img');
+      img.src = c.src; img.alt = c.stage;
+      if (i === currentIdx) img.classList.add('is-active');
+      rgbMain.appendChild(img);
+
+      const t = document.createElement('div');
+      t.className = 'thumb' + (i === currentIdx ? ' is-active' : '');
+      t.innerHTML = `<img src="${c.src}" alt=""><span class="lbl">${c.stage}</span>`;
+      t.addEventListener('click', () => { currentIdx = i; updateGallery(); });
+      rgbStrip.appendChild(t);
+    });
+    updateGallery();
+  }
+  function updateGallery() {
+    const imgs = rgbMain.querySelectorAll('img');
+    const thumbs = rgbStrip.querySelectorAll('.thumb');
+    imgs.forEach((im, i) => im.classList.toggle('is-active', i === currentIdx));
+    thumbs.forEach((t, i) => t.classList.toggle('is-active', i === currentIdx));
+    const c = RGB[currentSubj][currentIdx];
+    rgbStage.textContent = c.stage;
+    rgbSubj.textContent = currentSubj.charAt(0).toUpperCase() + currentSubj.slice(1);
+  }
+  document.querySelectorAll('#rgbTabs button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#rgbTabs button').forEach(b => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      currentSubj = btn.dataset.subj;
+      currentIdx = 0;
+      renderGallery();
+    });
+  });
+  renderGallery();
+
+  /* ─── Mask reveal slider ──────────────────────────────────── */
+  function makeSlider(stageId, handleId, onMove) {
+    const stage = document.getElementById(stageId);
+    const handle = document.getElementById(handleId);
+    let dragging = false;
+    function setX(clientX) {
+      const r = stage.getBoundingClientRect();
+      let pct = ((clientX - r.left) / r.width) * 100;
+      pct = Math.max(0, Math.min(100, pct));
+      handle.style.left = pct + '%';
+      onMove(pct);
+    }
+    stage.addEventListener('mousedown', e => { dragging = true; setX(e.clientX); });
+    window.addEventListener('mousemove', e => { if (dragging) setX(e.clientX); });
+    window.addEventListener('mouseup', () => { dragging = false; });
+    stage.addEventListener('touchstart', e => { dragging = true; setX(e.touches[0].clientX); }, { passive: true });
+    window.addEventListener('touchmove', e => { if (dragging) setX(e.touches[0].clientX); }, { passive: true });
+    window.addEventListener('touchend', () => { dragging = false; });
+  }
+
+  const maskDim = document.getElementById('maskDim');
+  const maskKeep = document.getElementById('maskRgbKeep');
+  function setMaskClip(pct) {
+    const v = `inset(0 0 0 ${pct}%)`;
+    maskDim.style.clipPath = v;
+    maskKeep.style.clipPath = v;
+  }
+  makeSlider('maskStage', 'maskHandle', setMaskClip);
+  /* init mask state */
+  setMaskClip(50);
+
+  const compareRight = document.getElementById('compareRight');
+  makeSlider('compareStage', 'compareHandle', pct => {
+    compareRight.style.clipPath = `inset(0 0 0 ${pct}%)`;
+  });
+
+  /* ─── Section nav highlighting ─────────────────────────────── */
+  const sections = ['hero','camera','design','rgb','mask','problem','methods','findings','close'].map(id => document.getElementById(id));
+  const navLinks = document.querySelectorAll('#sideNav a');
+  function onScroll() {
+    let active = sections[0];
+    const y = window.scrollY + window.innerHeight*0.35;
+    sections.forEach(s => { if (s && s.offsetTop <= y) active = s; });
+    navLinks.forEach(a => a.classList.toggle('is-active', a.dataset.target === active.id));
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  /* ─── Reveal on scroll ─────────────────────────────────────── */
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(en => { if (en.isIntersecting) en.target.classList.add('in'); });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('[data-reveal]').forEach(el => io.observe(el));
+
+  /* ─── Hb list hover ────────────────────────────────────────── */
+  document.querySelectorAll('#hbList .hb').forEach(el => {
+    el.addEventListener('mouseenter', () => el.classList.add('is-active'));
+    el.addEventListener('mouseleave', () => el.classList.remove('is-active'));
+  });
+
+  /* ─── TWEAKS PANEL ─────────────────────────────────────────── */
+  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+    "palette": "onyx",
+    "accent": "#8FD0C2",
+    "grain": 55,
+    "displayFont": "Fraunces",
+    "showSideNav": false
+  }/*EDITMODE-END*/;
+
+  const PALETTES = {
+    opal: {
+      label: "Opal",
+      chips: ["#0B0C0E", "#F4F2EC", "#7DB5A8"],
+      accent: "#7DB5A8"
+    },
+    paper: {
+      label: "Paper",
+      chips: ["#16181C", "#ECE6D9", "#B43B2A"],
+      accent: "#B43B2A"
+    },
+    onyx: {
+      label: "Onyx",
+      chips: ["#F0EDE5", "#0D0F12", "#8FD0C2"],
+      accent: "#8FD0C2"
+    }
+  };
+
+  const FONTS = {
+    Fraunces: '"Fraunces", Georgia, serif',
+    PlayfairDisplay: '"Playfair Display", "Fraunces", Georgia, serif',
+    Inter: '"Inter", system-ui, -apple-system, sans-serif',
+    SpaceGrotesk: '"Space Grotesk", "Inter", system-ui, sans-serif'
+  };
+
+  let tweakState = { ...TWEAK_DEFAULTS };
+
+  /* Load Playfair + Space Grotesk on demand */
+  (function preloadFonts() {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Space+Grotesk:wght@400;500;600;700&display=swap';
+    document.head.appendChild(link);
+  })();
+
+  function applyTweaks(state) {
+    const root = document.documentElement;
+    /* palette */
+    if (state.palette === 'paper' || state.palette === 'onyx') {
+      root.setAttribute('data-palette', state.palette);
+    } else {
+      root.removeAttribute('data-palette');
+    }
+    /* accent override */
+    if (state.accent) root.style.setProperty('--accent', state.accent);
+    /* grain */
+    root.style.setProperty('--grain-opacity', (state.grain / 100).toFixed(2));
+    /* display font */
+    root.style.setProperty('--display', FONTS[state.displayFont] || FONTS.Fraunces);
+    /* side nav */
+    document.getElementById('sideNav').style.display = state.showSideNav ? '' : 'none';
+  }
+
+  function persist(partial) {
+    tweakState = { ...tweakState, ...partial };
+    applyTweaks(tweakState);
+    try {
+      window.parent.postMessage({ type: '__edit_mode_set_keys', edits: partial }, '*');
+    } catch (e) {}
+  }
+
+  /* Build the panel */
+  const panel = document.createElement('div');
+  panel.id = 'tweaksPanel';
+  panel.innerHTML = `
+    <div class="tp-head" id="tpHead">
+      <div class="ttl"><span class="dot"></span>Tweaks</div>
+      <button id="tpClose" title="Close">×</button>
+    </div>
+    <div class="tp-body">
+
+      <div class="tp-sec">
+        <div class="tp-label">Palette <span class="val" id="tpPaletteVal">Opal</span></div>
+        <div class="tp-palettes" id="tpPalettes"></div>
+      </div>
+
+      <div class="tp-sec">
+        <div class="tp-label">Accent · opal hue</div>
+        <div class="tp-seg" id="tpAccent"></div>
+      </div>
+
+      <div class="tp-sec">
+        <div class="tp-label">Display font <span class="val" id="tpFontVal">Fraunces</span></div>
+        <div class="tp-seg" id="tpFont"></div>
+      </div>
+
+      <div class="tp-sec">
+        <div class="tp-label">Paper grain <span class="val" id="tpGrainVal">55%</span></div>
+        <input type="range" min="0" max="100" step="5" class="tp-range" id="tpGrain">
+      </div>
+
+      <div class="tp-sec">
+        <div class="tp-toggle" id="tpSideNav">
+          <div class="tp-label" style="margin-bottom: 0;">Side navigation</div>
+          <div class="sw"></div>
+        </div>
+      </div>
+
+    </div>
+  `;
+  document.body.appendChild(panel);
+
+  const opener = document.createElement('button');
+  opener.id = 'tweaksOpener';
+  opener.title = 'Open tweaks';
+  opener.innerHTML = '⚙';
+  document.body.appendChild(opener);
+
+  /* Render palette swatches */
+  const palettesEl = document.getElementById('tpPalettes');
+  Object.entries(PALETTES).forEach(([key, p]) => {
+    const b = document.createElement('button');
+    b.className = 'tp-swatch';
+    b.dataset.key = key;
+    b.innerHTML = `<div class="chips">${p.chips.map(c => `<i style="background:${c}"></i>`).join('')}</div><div class="nm">${p.label}</div>`;
+    b.addEventListener('click', () => {
+      persist({ palette: key, accent: p.accent });
+      renderPanel();
+    });
+    palettesEl.appendChild(b);
+  });
+
+  /* Accent hue presets — keep them in the opal family + 2 contrasts */
+  const ACCENTS = [
+    { key: 'opal',     color: '#7DB5A8', label: 'Opal' },
+    { key: 'opal-d',   color: '#4F8C81', label: 'Deep' },
+    { key: 'sand',     color: '#C9A06E', label: 'Sand' },
+    { key: 'brick',    color: '#B43B2A', label: 'Brick' }
+  ];
+  const accentEl = document.getElementById('tpAccent');
+  ACCENTS.forEach(a => {
+    const b = document.createElement('button');
+    b.dataset.color = a.color;
+    b.innerHTML = `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${a.color};margin-right:6px;vertical-align:-1px;"></span>${a.label}`;
+    b.addEventListener('click', () => { persist({ accent: a.color }); renderPanel(); });
+    accentEl.appendChild(b);
+  });
+
+  /* Fonts */
+  const fontEl = document.getElementById('tpFont');
+  [
+    { key: 'Fraunces',        label: 'Fraunces' },
+    { key: 'PlayfairDisplay', label: 'Playfair' },
+    { key: 'SpaceGrotesk',    label: 'Grotesk' }
+  ].forEach(f => {
+    const b = document.createElement('button');
+    b.dataset.key = f.key;
+    b.textContent = f.label;
+    b.addEventListener('click', () => { persist({ displayFont: f.key }); renderPanel(); });
+    fontEl.appendChild(b);
+  });
+
+  /* Grain */
+  const grainEl = document.getElementById('tpGrain');
+  grainEl.addEventListener('input', e => {
+    document.getElementById('tpGrainVal').textContent = e.target.value + '%';
+    document.documentElement.style.setProperty('--grain-opacity', (e.target.value/100).toFixed(2));
+  });
+  grainEl.addEventListener('change', e => persist({ grain: +e.target.value }));
+
+  /* Side nav toggle */
+  document.getElementById('tpSideNav').addEventListener('click', () => {
+    persist({ showSideNav: !tweakState.showSideNav });
+    renderPanel();
+  });
+
+  function renderPanel() {
+    /* palette */
+    palettesEl.querySelectorAll('.tp-swatch').forEach(s => s.classList.toggle('is-active', s.dataset.key === tweakState.palette));
+    document.getElementById('tpPaletteVal').textContent = PALETTES[tweakState.palette]?.label || tweakState.palette;
+    /* accent */
+    accentEl.querySelectorAll('button').forEach(b => b.classList.toggle('is-active', b.dataset.color.toLowerCase() === (tweakState.accent || '').toLowerCase()));
+    /* font */
+    fontEl.querySelectorAll('button').forEach(b => b.classList.toggle('is-active', b.dataset.key === tweakState.displayFont));
+    document.getElementById('tpFontVal').textContent = ({ Fraunces:'Fraunces', PlayfairDisplay:'Playfair', SpaceGrotesk:'Grotesk' })[tweakState.displayFont] || tweakState.displayFont;
+    /* grain */
+    grainEl.value = tweakState.grain;
+    document.getElementById('tpGrainVal').textContent = tweakState.grain + '%';
+    /* side nav */
+    document.getElementById('tpSideNav').classList.toggle('is-on', !!tweakState.showSideNav);
+  }
+
+  /* Show / hide via host protocol */
+  function showPanel() {
+    panel.classList.add('is-open');
+    opener.classList.remove('is-shown');
+  }
+  function hidePanel() {
+    panel.classList.remove('is-open');
+    try { window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*'); } catch (e) {}
+  }
+  document.getElementById('tpClose').addEventListener('click', hidePanel);
+  opener.addEventListener('click', showPanel);
+
+  /* Drag (very simple — head only, repositions panel) */
+  (function dragPanel() {
+    const head = document.getElementById('tpHead');
+    let dragging = false, startX = 0, startY = 0, startR = 0, startB = 0;
+    head.addEventListener('mousedown', e => {
+      dragging = true;
+      startX = e.clientX; startY = e.clientY;
+      const r = panel.getBoundingClientRect();
+      startR = window.innerWidth - r.right;
+      startB = window.innerHeight - r.bottom;
+      document.body.style.userSelect = 'none';
+    });
+    window.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      panel.style.right = Math.max(8, startR - (e.clientX - startX)) + 'px';
+      panel.style.bottom = Math.max(8, startB - (e.clientY - startY)) + 'px';
+    });
+    window.addEventListener('mouseup', () => { dragging = false; document.body.style.userSelect = ''; });
+  })();
+
+  window.addEventListener('message', (e) => {
+    const d = e.data || {};
+    if (d.type === '__activate_edit_mode') showPanel();
+    else if (d.type === '__deactivate_edit_mode') panel.classList.remove('is-open');
+  });
+
+  /* Apply defaults + announce availability */
+  applyTweaks(tweakState);
+  renderPanel();
+  try {
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+  } catch (e) {}
+})();
+</script>
+</body>
+</html>
